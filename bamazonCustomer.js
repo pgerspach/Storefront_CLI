@@ -44,7 +44,7 @@ function promptUser() {
         message: "Product ID?",
         name: "productID",
         validate(response) {
-          return response <= numItems ? true : false;
+          return response <= numItems && response > 0 ? true : false;
         }
       }
     ])
