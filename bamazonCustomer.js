@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-
+var table = require("table");
 var connection = mysql.createConnection({
   host: "localhost",
 
@@ -24,13 +24,16 @@ connection.connect(function(err) {
 
 function displayAll() {
   console.log("Selecting all products...\n");
-  connection.query("SELECT product_name, department_name, price FROM products", function(err, res) {
-    if (err) throw err;
-    // Log all results of the SELECT statement
-    console.log(res);
-    numItems = res.length;
-    promptUser();
-  });
+  connection.query(
+    "SELECT item_id,product_name, department_name, price FROM products",
+    function(err, res) {
+      if (err) throw err;
+      // Log all results of the SELECT statement
+      console.log(table.table(makeArray(res)));
+      numItems = res.length;
+      promptUser();
+    }
+  );
 }
 
 function promptUser() {
@@ -40,8 +43,8 @@ function promptUser() {
         type: "input",
         message: "Product ID?",
         name: "productID",
-        validate(response){
-          return (response<=numItems) ? true:false;
+        validate(response) {
+          return response <= numItems ? true : false;
         }
       }
     ])
@@ -60,11 +63,10 @@ function promptUser() {
         ])
         .then(res => {
           connection.query(
-            "SELECT stock_quantity, price FROM products WHERE item_id = ?",
+            "SELECT stock_quantity, price, product_sales FROM products WHERE item_id = ?",
             [pID],
             function(err, qRes) {
               if (err) throw err;
-              console.log(qRes);
               if (res.quantity > qRes["stock_quantity"]) {
                 console.log("NOT ENOUGH LEFT!");
               } else {
@@ -73,9 +75,12 @@ function promptUser() {
                     res.quantity
                   } and we have ${qRes[0].stock_quantity}`
                 );
-                connection.query("UPDATE products SET ? WHERE ?", [
+                connection.query("UPDATE products SET ?, ? WHERE ?", [
                   {
                     stock_quantity: qRes[0].stock_quantity - res.quantity
+                  },
+                  {
+                    product_sales: qRes[0].product_sales + qRes[0].price * res.quantity
                   },
                   {
                     item_id: pID
@@ -92,4 +97,22 @@ function promptUser() {
           );
         });
     });
+}
+
+function makeArray(arr){
+  let newArray = [];
+  let n = 0;
+  var keys = Object.keys(arr[0]);
+  newArray.push(keys);
+  for(let obj of arr){
+    let innerArr = [];
+    for(let key of keys){
+      
+      innerArr.push(obj[key])
+    }
+    newArray.push(innerArr);
+
+    n++;
+  }
+  return newArray;
 }
