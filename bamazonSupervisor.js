@@ -5,14 +5,11 @@ var table = require("table");
 var connection = mysql.createConnection({
   host: "localhost",
 
-  // Your port; if not 3306
   port: 3306,
 
-  // Your username
   user: "root",
 
-  // Your password
-  password: "",
+  password: "CK214227275524@",
   database: "bamazon"
 });
 var numItems = 0;
@@ -61,7 +58,7 @@ function viewSales() {
   
   connection.query(sqlQuery, function(err,sqlRes){
     for(let row of sqlRes){
-      row.total_profit = row.product_sales-row.over_head_costs;
+      row.total_profit = (row.product_sales-row.over_head_costs).toFixed(2);
     }
     let output = table.table(makeArray(sqlRes));
     console.log(output);

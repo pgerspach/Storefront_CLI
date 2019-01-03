@@ -4,14 +4,11 @@ var table = require("table");
 var connection = mysql.createConnection({
   host: "localhost",
 
-  // Your port; if not 3306
   port: 3306,
 
-  // Your username
   user: "root",
 
-  // Your password
-  password: "",
+  password: "CK214227275524@",
   database: "bamazon"
 });
 var numItems = 0;
@@ -80,7 +77,7 @@ function promptUser() {
                     stock_quantity: qRes[0].stock_quantity - res.quantity
                   },
                   {
-                    product_sales: qRes[0].product_sales + qRes[0].price * res.quantity
+                    product_sales: (qRes[0].product_sales + qRes[0].price * res.quantity).toFixed(2)
                   },
                   {
                     item_id: pID

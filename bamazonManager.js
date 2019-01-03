@@ -1,17 +1,15 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var table = require("table");
 
 var connection = mysql.createConnection({
   host: "localhost",
 
-  // Your port; if not 3306
   port: 3306,
 
-  // Your username
   user: "root",
 
-  // Your password
-  password: "",
+  password: "CK214227275524@",
   database: "bamazon"
 });
 
@@ -70,9 +68,9 @@ function managerDisplay() {
 }
 
 function productsForSale() {
-  connection.query("SELECT * FROM products", function(err, res) {
+  connection.query("SELECT product_name,department_name,price,stock_quantity,product_sales FROM products", function(err, res) {
     if (err) throw err;
-    console.log(res);
+    console.log(table.table(makeArray(res)));
     connection.end();
   });
 }
@@ -178,4 +176,22 @@ function addProduct() {
         }
       );
     });
+}
+
+function makeArray(arr){
+  let newArray = [];
+  let n = 0;
+  var keys = Object.keys(arr[0]);
+  newArray.push(keys);
+  for(let obj of arr){
+    let innerArr = [];
+    for(let key of keys){
+      
+      innerArr.push(obj[key])
+    }
+    newArray.push(innerArr);
+
+    n++;
+  }
+  return newArray;
 }
